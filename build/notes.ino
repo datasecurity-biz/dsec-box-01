@@ -246,6 +246,7 @@ void checkSwitchStates() {
 	int data;
 	for (byte i = 0; i < 16; ++i)
 	{
+
 		// Reads from channel i and returns HIGH or LOW
 		//int i = 12;
 		data = mux.read(i);
@@ -257,10 +258,10 @@ void checkSwitchStates() {
 			SwitchStates[i] = 0;
 			//Serial.print("0");
 		}
-		Serial.print(SwitchStates[i]);
-		Serial.print("|");
-		delay(20);
+
 	}
+
+	delay(20);
 
 }
 
