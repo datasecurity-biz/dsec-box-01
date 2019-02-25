@@ -15,6 +15,10 @@
 
 #include <dsec-dualtoggle.h>
 
+int8_t DSecDualToggle::UP   =  1;
+int8_t DSecDualToggle::OFF  =  0;
+int8_t DSecDualToggle::DOWN = -1;
+
 DSecDualToggle::DSecDualToggle() {
 
 	// defaults!
@@ -49,13 +53,29 @@ void DSecDualToggle::setDownState(uint8_t newState) {
 
 }
 
+void DSecDualToggle::setUpPin(uint8_t pin) {
+	_upPin = pin;
+}
+
+void DSecDualToggle::setDownPin(uint8_t pin) {
+	_downPin = pin;
+}
+
+uint8_t DSecDualToggle::getUpPin() {
+	return _upPin;
+}
+
+uint8_t DSecDualToggle::getDownPin() {
+	return _downPin;
+}
+
 int8_t DSecDualToggle::getState() {
 	if (_upState > 0 && _downState == 0) {
-		return 1;
+		return DSecDualToggle::UP;
 	} else if (_upState == 0 && _downState > 0) {
-		return -1;
+		return DSecDualToggle::DOWN;
 	} else {
-		return 0;
+		return DSecDualToggle::OFF;
 	}
 }
 

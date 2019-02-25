@@ -23,7 +23,16 @@ class DSecDualToggle {
 
 		void    setUpState(uint8_t newState);
 		void    setDownState(uint8_t newState);
-		int8_t getState();
+		void    setUpPin(uint8_t pin);
+		void    setDownPin(uint8_t pin);
+
+		uint8_t getUpPin();
+		uint8_t getDownPin();
+		int8_t  getState();
+
+		static int8_t UP;
+		static int8_t OFF;
+		static int8_t DOWN;
 
 		// void setStateChangedHandler(); // stateChangedHandler(int newState)
 		// ^ note to self: http://www.gammon.com.au/callbacks -- need to figure this thingie out
@@ -31,16 +40,20 @@ class DSecDualToggle {
 	private:
 		/**
 		 * Toggle states
-		 *  1: - currently held up
-		 *  0: - off
-		 * -1: - currently held down
+		 * .UP   ->  1: - currently held up
+		 * .OFF  ->  0: - off
+		 * .DOWN -> -1: - currently held down
 		 */
 		int8_t _upState;
 		int8_t _downState;
 		int8_t _previousUpState;
 		int8_t _previousDownState;
-		unsigned long _lastChangedUpStateMS; // debounce
-		unsigned long _lastChangedDownStateMS; // debounce
+
+		unsigned long _lastChangedUpStateMS; // last millis read time for debounce
+		unsigned long _lastChangedDownStateMS; // last millis read time for debounce
+
+		uint8_t _upPin;
+		uint8_t _downPin;
 
 };
 

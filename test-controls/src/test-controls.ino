@@ -9,11 +9,15 @@
 
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, 8, NEO_GRB + NEO_KHZ800);
-uint8_t R = 255;
-uint8_t G = 255;
-uint8_t B = 255;
+int8_t R = 0;
+int8_t G = 0;
+int8_t B = 0;
 
-DSecDualToggle mainToggles[8] = DSecDualToggle();
+// 8 toggles left to right
+DSecDualToggle mainToggles[8];// = DSecDualToggle();
+
+// one toggle up top right
+DSecDualToggle topToggle      = DSecDualToggle();
 
 // where is the mux?
 MUX74HC4067 mux(7, 6, 5, 4, 3);
@@ -32,124 +36,141 @@ void setup() {
 	strip.begin();
 	strip.show();
 
-	for(int i = 0; i < 10; i++)
-		strip.setPixelColor(i,R,G,B);
+	for(int loops = 0; loops < 10; loops++) {
+		for(int i = 0; i < 10; i++) {
+			strip.setPixelColor(i,127,0,0);
+		}
+		strip.show();
+		delay(50);
+		for(int i = 0; i < 10; i++) {
+			strip.setPixelColor(i,0,0,0);
+		}
+		strip.show();
+		delay(50);
+	}
 
-	strip.show();
+
 
 	mux.signalPin(SIG, INPUT, DIGITAL);
+
+	for(uint8_t i = 0; i < 8; i++)
+		mainToggles[i] = DSecDualToggle();
+
+	mainToggles[0].setUpPin(5);
+	mainToggles[0].setDownPin(4);
+	mainToggles[1].setUpPin(3);
+	mainToggles[1].setDownPin(2);
+	mainToggles[2].setUpPin(1);
+	mainToggles[2].setDownPin(0);
+	mainToggles[3].setUpPin(11);
+	mainToggles[3].setDownPin(10);
+	mainToggles[4].setUpPin(9);
+	mainToggles[4].setDownPin(8);
+	mainToggles[5].setUpPin(7);
+	mainToggles[5].setDownPin(6);
+	mainToggles[6].setUpPin(13);
+	mainToggles[6].setDownPin(12);
+	mainToggles[7].setUpPin(15);
+	mainToggles[7].setDownPin(14);
+
+	// UP, DOWN pins switches from 0-7
+	// 5,4
+	// 3,2
+	// 1,0
+	// 11,10
+	// 9,8
+	// 7,6
+	// 13,12
+	// 15,14
+
 
 }
 
 void loop() {
 	// thingie.loop();
 
-	for(int i = 0; i < 10; i++)
-		strip.setPixelColor(i,R,G,B);
+	// something like this :
+
+	int changededness = R + G + B;
 
 	R += mainToggles[0].getState();
 	G += mainToggles[1].getState();
+	B += mainToggles[2].getState();
 
-	Serial.print(mainToggles[0].getState());
-	Serial.print(',');
-	Serial.println(mainToggles[1].getState());
+	if (R < 0)
+		R = 0;
 
-	// if (R > 0)
-	// 	R--;
-	//
-	// if (G > 0)
-	// 	G--;
-	//
-	// if (B > 0)
-	// 	B--;
+	if (G < 0)
+		G = 0;
 
-	strip.show();
+	if (B < 0)
+		B = 0;
 
+	if (R > 255)
+		R = 255;
 
+	if (G > 255)
+		G = 255;
 
-
-
-
-	delay(2);
+	if (B > 255)
+		B = 255;
 
 
-	checkSwitchStates();
+
+	if (R + G + B != changededness) {
+
+		for(int i = 0; i < 10; i++)
+			strip.setPixelColor(i,R,G,B);
+
+		strip.show();
+	}
+
+	// delay(2);
+
+	readInterfaceState();
 
 }
 
 
-void checkSwitchStates() {
+void readInterfaceState() {
 
-	int data;
-	// int SwitchStates[16];
+	int8_t data;
 
-	for (byte i = 0; i < 16; ++i) {
+	for (uint8_t i = 0; i < 8; ++i) {
 
-		// Reads from channel i and returns HIGH or LOW
-		//int i = 12;
-		data = mux.read(i);
+		// check the up state
+		data = mux.read( mainToggles[i].getUpPin() );
+		mainToggles[i].setUpState( data == HIGH );
 
-		// if ( data == HIGH ) {
-		// 	SwitchStates[i] = 1;
-		// 	//Serial.print("1");
-		// }
-		// else if ( data == LOW ) {
-		// 	SwitchStates[i] = 0;
-		// 	//Serial.print("0");
-		// }
+		uint8_t upPin = mainToggles[i].getUpPin();
+		uint8_t downPin = mainToggles[i].getDownPin();
 
-		// @todo need some sort of a map for relating these back to their pins since the pins are a lil randomish
+		// check the up state
+		data = mux.read( upPin );
+		mainToggles[i].setUpState( data == HIGH );
 
-		// we need to know if it relates to the UP or DOWN position and targetSwitch -- 0-7
-		// current seems to be even / odd so we could do %2 == 0 for the first part at least
+		// check the down state
+		data = mux.read( downPin );
+		mainToggles[i].setDownState( data == HIGH );
 
-		int8_t targetSwitch = -1;
-
-		switch(i) {
-
-			case 5:
-			case 4:
-				targetSwitch = 0;
-				break;
-
-			case 3:
-			case 2:
-				targetSwitch = 1;
-				break;
-
+		switch( mainToggles[i].getState() ) {
+			case  1 : Serial.print("^"); break;
+			case  0 : Serial.print("-"); break;
+			case -1 : Serial.print("v"); break;
 		}
-
-
-		// these are the UP,DOWN pins in order switches 0-7
-		// 5,4
-		// 3,2
-		// 1,0
-		// 11,10
-		// 9,8
-		// 7,6
-		// 13,12
-		// 15,14
-
-		// We are up, and high vs we are down and high
-		if (targetSwitch > 0 && (i == 5 || i == 3))
-			mainToggles[targetSwitch].setUpState( data == HIGH );
-		else if (targetSwitch > 0)
-			mainToggles[targetSwitch].setDownState( data == HIGH );
-
-		// Serial.print(i);
-		// Serial.print("=");
-		// Serial.print(SwitchStates[i]);
-		//
-		// if (i < 15)
-		// 	Serial.print(" | ");
 
 	}
 
-	// for(int i = 0; i < 2; i++) {
-	// 	mainToggles[i]
-	// }
+	Serial.print(" ");
+
+	switch( topToggle.getState() ) {
+		case  1 : Serial.print("^"); break;
+		case  0 : Serial.print("-"); break;
+		case -1 : Serial.print("v"); break;
+	}
 
 	Serial.println("");
-	delay(20);
+
+	// delay(20);
 
 }
