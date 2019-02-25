@@ -9,9 +9,7 @@
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, 8, NEO_GRB + NEO_KHZ800);
 
-int8_t R = 0;
-int8_t G = 0;
-int8_t B = 0;
+DSecRGBLed seqLeds[8]
 
 // One toggle up top right
 DSecDualToggle topToggle;
@@ -121,40 +119,13 @@ void loop() {
 
 	// something like this :
 
-	int changededness = R + G + B;
+	// do midi things
+	// midi midi midi
 
-	R += mainToggles[0].getState();
-	G += mainToggles[1].getState();
-	B += mainToggles[2].getState();
+	// LEDs
+	updateDisplay();
 
-	if (R < 0)
-		R = 0;
-
-	if (G < 0)
-		G = 0;
-
-	if (B < 0)
-		B = 0;
-
-	if (R > 255)
-		R = 255;
-
-	if (G > 255)
-		G = 255;
-
-	if (B > 255)
-		B = 255;
-
-	if (R + G + B != changededness) {
-
-		for(int i = 0; i < 10; i++)
-			strip.setPixelColor(i,R,G,B);
-
-		strip.show();
-	}
-
-	// delay(2);
-
+	// read knobs and buttons
 	readInterfaceState();
 
 }
@@ -233,5 +204,43 @@ void readInterfaceState() {
 	Serial.println("");
 
 	// delay(20);
+
+}
+
+void updateDisplay() {
+
+	/*
+	int changededness = R + G + B;
+
+	R += mainToggles[0].getState();
+	G += mainToggles[1].getState();
+	B += mainToggles[2].getState();
+
+	if (R < 0)
+		R = 0;
+
+	if (G < 0)
+		G = 0;
+
+	if (B < 0)
+		B = 0;
+
+	if (R > 255)
+		R = 255;
+
+	if (G > 255)
+		G = 255;
+
+	if (B > 255)
+		B = 255;
+
+	if (R + G + B != changededness) {
+
+		for(int i = 0; i < 10; i++)
+			strip.setPixelColor(i,R,G,B);
+
+		strip.show();
+	}
+	*/
 
 }
