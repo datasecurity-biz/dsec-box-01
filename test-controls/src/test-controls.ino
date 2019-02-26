@@ -2,6 +2,7 @@
 #include "dsec-singletoggle.h"
 #include "dsec-dualtoggle.h"
 #include "dsec-knob.h"
+#include "dsec-rgbled.h"
 
 #include <Adafruit_NeoPixel.h>
 #include <MIDI.h>
@@ -9,7 +10,7 @@
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, 8, NEO_GRB + NEO_KHZ800);
 
-DSecRGBLed seqLeds[8]
+DSecRGBLED seqLeds[8];
 
 // One toggle up top right
 DSecDualToggle topToggle;
