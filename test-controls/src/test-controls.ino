@@ -11,6 +11,7 @@
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, 8, NEO_GRB + NEO_KHZ800);
 
 DSecRGBLED seqLEDs[8];
+DSecRGBLED topLEDs[2];
 
 // One toggle up top right
 DSecDualToggle topToggle;
@@ -41,7 +42,7 @@ void setup() {
 	strip.begin();
 	strip.show();
 
-	for(int loops = 0; loops < 10; loops++) {
+	for(int loops = 0; loops < 3; loops++) {
 		for(int i = 0; i < 10; i++) {
 			strip.setPixelColor(i,127,0,0);
 		}
@@ -117,8 +118,14 @@ void setup() {
 
 	for (uint8_t i = 0; i < 8; i++) {
 		seqLEDs[i] = DSecRGBLED();
-		seqLEDs[i].setNumber(9 - i);
+		seqLEDs[i].setNumber(9 - i); // pixels 9-2, left to right
 	}
+
+	for (uint8_t i = 0; i < 2; i++) {
+		topLEDs[i] = DSecRGBLED();
+		topLEDs[i].setNumber(i); // pixels 0-1, left to right
+	}
+
 
 }
 
@@ -192,9 +199,19 @@ void readInterfaceState() {
 	topToggle.setDownState( data == HIGH );
 
 	switch( topToggle.getState() ) {
-		case  1 : Serial.print("^"); break;
+		case  1 :
+			Serial.print("^");
+			topLEDs[0].setRGB(
+				knobs[0].getPosition() * 255,
+				knobs[1].getPosition() * 255,
+				knobs[2].getPosition() * 255,
+				knobs[3].getPosition() * 10000);
+		break;
 		case  0 : Serial.print("-"); break;
-		case -1 : Serial.print("v"); break;
+		case -1 :
+			Serial.print("v");
+			topLEDs[0].setRGB(0,0,0, knobs[3].getPosition() * 10000);
+		break;
 	}
 
 	Serial.print(" ");
@@ -239,14 +256,23 @@ void updateDisplay() {
 		}
 	}
 
+	for(uint8_t i = 0; i < 2; i++) {
+		topLEDs[i].update();
+		if (topLEDs[i].isChanged()) {
+			needRepaint = true;
+			strip.setPixelColor( topLEDs[i].getNumber(), topLEDs[i].getR(), topLEDs[i].getG(), topLEDs[i].getB() );
+		}
+	}
+
 	// check top two LEDs
 
 	if (needRepaint) {
-		Serial.println("DRAW U");
 		strip.show();
 	}
 
 	// check bottom four button LEDs
-	// deal with those here in a very special and rad way ??? 
+	// deal with those here in a very special and rad way ???
+
+
 
 }
