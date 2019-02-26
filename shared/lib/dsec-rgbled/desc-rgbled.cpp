@@ -21,6 +21,25 @@
 
 DSecRGBLED::DSecRGBLED() {
 
+	_R = 0;
+	_G = 0;
+	_B = 0;
+
+	_lastR = 0;
+	_lastG = 0;
+	_lastB = 0;
+
+	_targetR = 0;
+	_targetG = 0;
+	_targetB = 0;
+
+	_changeRMS = 0;
+	_changeGMS = 0;
+	_changeBMS = 0;
+
+	_lastMS = millis();
+	_targetMillis = millis();
+
 }
 
 uint8_t DSecRGBLED::getR() {
@@ -34,21 +53,6 @@ uint8_t DSecRGBLED::getG() {
 uint8_t DSecRGBLED::getB() {
 	return this->to8bit(_B);
 }
-
-// void DSecRGBLED::setR(uint8_t R) {
-// 	_R = R;
-// 	_targetR = R;
-// }
-//
-// void DSecRGBLED::setG(uint8_t G) {
-// 	G = _G;
-// 	_targetG = G;
-// }
-//
-// void DSecRGBLED::setB(uint8_t B) {
-// 	B = _B;
-// 	_targetB = B;
-// }
 
 /**
  * Jump instantly to a new R/G/B
@@ -105,24 +109,31 @@ void DSecRGBLED::update() {
 	_G += _changeGMS * elapsedMS;
 	_B += _changeBMS * elapsedMS;
 
-	if (_lastR != _R || _lastG != _G || _lastB != _B) {
-		_isChanged = true;
-	} else {
-		_isChanged = false;
+	if (millis() >= _targetMillis) {
+		_changeRMS = 0;
+		_changeGMS = 0;
+		_changeBMS = 0;
+		_R = _targetR;
+		_G = _targetG;
+		_B = _targetB;
 	}
 
 	_lastMS = millis();
 
 }
 
-uint8_t DSecRGBLED::to8Bit(int16_t rangedValue) {
+uint8_t DSecRGBLED::to8bit(int16_t rangedValue) {
 	float rv = (float) rangedValue;
 	return (uint8_t) ((rv / 32768) * 255);
 }
 
-int16_t DSecRGBLED::to16Bit(uint8_t rangedValue) {
+int16_t DSecRGBLED::to16bit(uint8_t rangedValue) {
 	float rv = (float) rangedValue;
 	return (int16_t) ((rv / 255) * 32768);
+}
+
+boolean DSecRGBLED::isChanged() {
+	return _R != _lastR || _G != _lastG || _B != _lastB;
 }
 
 #endif // DSecRGBLED_cpp

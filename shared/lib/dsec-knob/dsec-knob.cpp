@@ -46,13 +46,16 @@ uint16_t DSecKnob::getValue() {
  * 0 or 1
  */
 float DSecKnob::getPosition() {
+
 	float posValue = (float) _value / (float) _maxValue;
-	// if (posValue > 1)
-	// 	return 1;
-	// else if (posValue < 0)
-	// 	return 0;
-	// else return posValue;
-	return posValue;
+
+	if (posValue > 1)
+		return 1;
+	else if (posValue < 0)
+		return 0;
+	else
+		return posValue;
+	// return posValue;
 }
 
 void DSecKnob::setValue(uint16_t value) {

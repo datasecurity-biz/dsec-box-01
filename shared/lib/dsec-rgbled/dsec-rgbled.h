@@ -13,6 +13,9 @@
 #ifndef DSecRGBLED_h
 #define DSecRGBLED_h
 
+#include <Arduino.h>
+#include <stdint.h>
+
 //. @todo see .h and write this
 // needs to do some interpolatioj thing
 // also we need a notion of if the LEDs are changed / should be written to
@@ -66,26 +69,28 @@ class DSecRGBLED {
 
 		uint8_t _number;
 
-		int16_t _lastR;
-		int16_t _lastG;
-		int16_t _lastB;
-
-		// 0 - 65,535
+		// These are the current values which will be returned (scaled down to 8bit)
+		// -32768 to 32768
 		int16_t _R;
 		int16_t _G;
 		int16_t _B;
 
-		int16_t _changeRMS;
-		int16_t _changeGMS;
-		int16_t _changeBMS;
+		// the last value of R/G/B -- determine if a change is required ?
+		int16_t _lastR;
+		int16_t _lastG;
+		int16_t _lastB;
 
 		int16_t _targetR;
 		int16_t _targetG;
 		int16_t _targetB;
 
-		long _lastMS;
-		long _targetMillis;
+		int16_t _changeRMS;
+		int16_t _changeGMS;
+		int16_t _changeBMS;
 
-}
+		unsigned long _lastMS;
+		unsigned long _targetMillis;
+
+};
 
 #endif // DSecRGBLED_h
