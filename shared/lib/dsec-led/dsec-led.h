@@ -26,6 +26,8 @@ class DSecLED {
 
 		void setState(boolean state); // jump to state immediately
 		void setState(boolean state, long onTime ); // how long to maintain this state ?
+		void setOn(long onTime ); // how long to maintain this state ?
+
 		// maybe we need setOn / setOff w/ delay ?  is that more clear ?
 
 		/**

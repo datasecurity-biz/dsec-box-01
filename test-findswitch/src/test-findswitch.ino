@@ -15,8 +15,11 @@ void setup() {
 void loop() {
 
 	for(uint8_t curPin = lowPin; curPin <= highPin; curPin++) {
+
 		int data = LOW;
+
 		data = digitalRead( curPin );
+
 		if (data == HIGH) {
 
 			switch(curPin) {
@@ -39,6 +42,7 @@ void loop() {
 			}
 
 		}
+
 	}
 
 	delay(10);

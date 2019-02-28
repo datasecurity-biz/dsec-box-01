@@ -129,7 +129,7 @@ void setup() {
 		buttonLEDs[i].setPin(34 + i); // pins 34-37
 		pinMode(buttonLEDs[i].getPin(), OUTPUT); // INPUT_PULLUP); ? not sure
 		delay(10);
-		digitalWrite(buttonLEDs[i].getPin(), LOW);
+		digitalWrite(buttonLEDs[i].getPin(), HIGH);
 	}
 
 }
@@ -229,11 +229,12 @@ void readInterfaceState() {
 			case  1 :
 				Serial.print("X");
 				// buttonLEDs[i].setState(false);
-				buttonLEDs[i].setState(true, 1000);
+				// buttonLEDs[i].setState(true, 1000);
+				buttonLEDs[i].setOn(1000);
 				break;
 			case  0 :
 				Serial.print("O");
-
+				// buttonLEDs[i].setState(true);
 				break;
 		}
 	}
@@ -286,10 +287,11 @@ void updateDisplay() {
 
 	for(uint8_t i = 0; i < 4; i++) {
 		buttonLEDs[i].update();
+		//
 		// if (buttonLEDs[i].isChanged() ) {
 			// digitalWrite( buttonLEDs[i].getPin(), buttonLEDs[i].getState() ? HIGH : LOW );
 		// }
-		digitalWrite( buttonLEDs[i].getPin(), buttonLEDs[i].getState() ? HIGH : LOW );
+		digitalWrite( buttonLEDs[i].getPin(), buttonLEDs[i].getState() ? LOW : HIGH );
 	}
 
 }
