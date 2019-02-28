@@ -1,0 +1,95 @@
+/**
+ * Name: Data Security LED control
+ * Author: Avery Brooks
+ * Version: 0.0
+ * Description: A library for abstract 'state' of a single LED
+ * License: Copyright (c) 2019 Avery Brooks
+ *          This library is licensed under the MIT license
+ *          http://www.opensource.org/licenses/mit-license.php
+ *
+ * Filename: dsec-led.cpp
+ * File description: dsec-led library
+ */
+#ifndef DSecLED_cpp
+#define DSecLED_cpp
+
+#include <dsec-led.h>
+
+//. @todo see .h and write this
+// needs to do some interpolatioj thing
+// also we need a notion of if the LEDs are changed / should be written to
+
+DSecLED::DSecLED() {
+
+	// @TODO WRITE ALL THIS STUFF
+
+	_state = false;
+	_state = false;
+
+	_lastMS = millis();
+	_targetMillis = millis();
+
+}
+
+/**
+ * Change _state instantly to new state
+ */
+void DSecLED::setState( boolean state ) {
+	_state = state;
+	_targetState = state;
+	_targetMillis = millis();
+}
+
+/**
+ * Change _state to state for {lifetimeMS} MS, before switching back to last
+ */
+void DSecLED::setState( boolean state, long lifetimeMS ) {
+
+	// flip target to be current state
+	_targetState = _state;
+
+	// set current state to be desired state
+	_state = state;
+
+	// set future arrival time of previous state
+	_targetMillis = millis() + lifetimeMS;
+}
+
+boolean DSecLED::getState() {
+	return _state;
+}
+
+/**
+ * Get the 'number' of the LED
+ */
+uint8_t DSecLED::getPin() {
+	return _pin;
+}
+
+void DSecLED::setPin(uint8_t pin) {
+	_pin = pin;
+}
+
+void DSecLED::update() {
+
+	// store last state
+	_lastState = _state;
+
+	// long elapsedMS = millis() - _lastMS;
+
+	// check for state change needed
+	if (millis() >= _targetMillis && _state != _targetState) {
+		_state = _targetState;
+		// changed!
+	}
+
+	// store last time we did ms
+	_lastMS = millis();
+
+}
+
+boolean DSecLED::isChanged() {
+	return _state != _lastState;
+}
+
+#endif // DSecLED_cpp

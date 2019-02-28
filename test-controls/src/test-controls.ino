@@ -3,6 +3,7 @@
 #include "dsec-dualtoggle.h"
 #include "dsec-knob.h"
 #include "dsec-rgbled.h"
+#include "dsec-led.h"
 
 #include <Adafruit_NeoPixel.h>
 #include <MIDI.h>
@@ -12,6 +13,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, 8, NEO_GRB + NEO_KHZ800);
 
 DSecRGBLED seqLEDs[8];
 DSecRGBLED topLEDs[2];
+DSecLED buttonLEDs[4];
 
 // One toggle up top right
 DSecDualToggle topToggle;
@@ -126,6 +128,12 @@ void setup() {
 		topLEDs[i].setNumber(i); // pixels 0-1, left to right
 	}
 
+	for (uint8_t i = 0; i < 4; i++) {
+		buttonLEDs[i] = DSecLED();
+		buttonLEDs[i].setPin(34 + i); // pins 34-37
+		pinMode(buttonLEDs[i].getPin(), OUTPUT);
+		digitalWrite(buttonLEDs[i].getPin(), LOW);
+	}
 
 }
 
@@ -221,8 +229,14 @@ void readInterfaceState() {
 		buttons[i].setState(data);
 
 		switch( buttons[i].getState() ) {
-			case  1 : Serial.print("X"); break;
-			case  0 : Serial.print("O"); break;
+			case  1 :
+				Serial.print("X");
+				buttonLEDs[i].setState(true);
+				break;
+			case  0 :
+				Serial.print("O");
+				buttonLEDs[i].setState(false);
+				break;
 		}
 	}
 
@@ -271,8 +285,12 @@ void updateDisplay() {
 	}
 
 	// check bottom four button LEDs
-	// deal with those here in a very special and rad way ???
 
-
+	for(uint8_t i = 0; i < 4; i++) {
+		buttonLEDs[i].update();
+		if (buttonLEDs[i].isChanged() ) {
+			digitalWrite( buttonLEDs[i].getPin(), buttonLEDs[i].getState() ? HIGH : LOW );
+		}
+	}
 
 }
