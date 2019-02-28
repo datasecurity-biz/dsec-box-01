@@ -16,12 +16,6 @@
 #include <Arduino.h>
 #include <stdint.h>
 
-//. @todo see .h and write this
-// needs to do some interpolatioj thing
-// also we need a notion of if the LEDs are changed / should be written to
-// internally we use a 16 bit number for resolution w/o floating point
-// set and get 8 bit number as is used by the STRIPS
-
 class DSecLED {
 
 	public:
@@ -30,9 +24,8 @@ class DSecLED {
 
 		boolean getState();
 
-		void setState(boolean state);
+		void setState(boolean state); // jump to state immediately
 		void setState(boolean state, long onTime ); // how long to maintain this state ?
-
 		// maybe we need setOn / setOff w/ delay ?  is that more clear ?
 
 		/**
@@ -42,8 +35,8 @@ class DSecLED {
 		uint8_t getPin();
 
 		/**
-		* Convenience storage to keep implementation simpler - which pin
-		* is this LED attached to?  Eg: digital PIN 4
+		 * Convenience storage to keep implementation simpler - which pin
+		 * is this LED attached to?  Eg: digital PIN 4
 		 */
 		void setPin(uint8_t pin);
 
@@ -63,14 +56,19 @@ class DSecLED {
 
 		uint8_t _pin;
 
-		// Is on / turn off or on
+		// true = on / false = off
 		boolean _state;
+
+		// the state during the previous update() call
 		boolean _lastState;
+
+		// the desired state after _targetMillis is now or past
 		boolean _targetState;
 
-		// when was the last time we did stuff
-		// when will targetState happen
+		// when was the last time update was called?
 		unsigned long _lastMS;
+
+		// when will _state become _targetState ?
 		unsigned long _targetMillis;
 
 };

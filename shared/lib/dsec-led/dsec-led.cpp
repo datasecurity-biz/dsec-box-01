@@ -21,10 +21,8 @@
 
 DSecLED::DSecLED() {
 
-	// @TODO WRITE ALL THIS STUFF
-
 	_state = false;
-	_state = false;
+	_lastState = false;
 
 	_lastMS = millis();
 	_targetMillis = millis();
@@ -47,6 +45,7 @@ void DSecLED::setState( boolean state, long lifetimeMS ) {
 
 	// flip target to be current state
 	_targetState = _state;
+	// _lastState = // this happens in this->update()
 
 	// set current state to be desired state
 	_state = state;

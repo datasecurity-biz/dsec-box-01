@@ -45,8 +45,8 @@ void setup() {
 	strip.show();
 
 	for(int loops = 0; loops < 3; loops++) {
-		for(int i = 0; i < 10; i++) {
-			strip.setPixelColor(i,127,0,0);
+		for(int i = 0; i < 1; i++) {
+			strip.setPixelColor(i,255,0,0);
 		}
 		strip.show();
 		delay(50);
@@ -64,6 +64,8 @@ void setup() {
 
 	for(uint8_t i = 0; i < 8; i++)
 		mainToggles[i] = DSecDualToggle();
+
+	// these are all over the place, so setting them manually outside of the loop
 
 	mainToggles[0].setUpPin(5);
 	mainToggles[0].setDownPin(4);
@@ -93,18 +95,12 @@ void setup() {
 
 	// BUTTONS
 
-	for (uint8_t i = 0; i < 4; i++)
+	for (uint8_t i = 0; i < 4; i++) {
 		buttons[i] = DSecSingleToggle();
+		buttons[i].setPin(22 + i);
+		pinMode(buttons[i].getPin(), INPUT);
 
-	pinMode(22, INPUT);
-	pinMode(23, INPUT);
-	pinMode(24, INPUT);
-	pinMode(25, INPUT);
-
-	buttons[0].setPin(22);
-	buttons[1].setPin(23);
-	buttons[2].setPin(24);
-	buttons[3].setPin(25);
+	}
 
 	// KNOBS
 
@@ -131,7 +127,8 @@ void setup() {
 	for (uint8_t i = 0; i < 4; i++) {
 		buttonLEDs[i] = DSecLED();
 		buttonLEDs[i].setPin(34 + i); // pins 34-37
-		pinMode(buttonLEDs[i].getPin(), OUTPUT);
+		pinMode(buttonLEDs[i].getPin(), OUTPUT); // INPUT_PULLUP); ? not sure
+		delay(10);
 		digitalWrite(buttonLEDs[i].getPin(), LOW);
 	}
 
@@ -231,11 +228,12 @@ void readInterfaceState() {
 		switch( buttons[i].getState() ) {
 			case  1 :
 				Serial.print("X");
-				buttonLEDs[i].setState(true);
+				// buttonLEDs[i].setState(false);
+				buttonLEDs[i].setState(true, 1000);
 				break;
 			case  0 :
 				Serial.print("O");
-				buttonLEDs[i].setState(false);
+
 				break;
 		}
 	}
@@ -288,9 +286,10 @@ void updateDisplay() {
 
 	for(uint8_t i = 0; i < 4; i++) {
 		buttonLEDs[i].update();
-		if (buttonLEDs[i].isChanged() ) {
-			digitalWrite( buttonLEDs[i].getPin(), buttonLEDs[i].getState() ? HIGH : LOW );
-		}
+		// if (buttonLEDs[i].isChanged() ) {
+			// digitalWrite( buttonLEDs[i].getPin(), buttonLEDs[i].getState() ? HIGH : LOW );
+		// }
+		digitalWrite( buttonLEDs[i].getPin(), buttonLEDs[i].getState() ? HIGH : LOW );
 	}
 
 }
