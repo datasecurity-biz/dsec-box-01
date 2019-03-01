@@ -26,14 +26,29 @@ class DSecLED {
 
 		void setState(boolean state); // jump to state immediately
 		void setState(boolean state, long onTime ); // how long to maintain this state ?
-		void setOn(long onTime ); // how long to maintain this state ?
 
-		// void blink() // flash 4x quickly, default behavior
-		// void blink(int times) // blink at default rate
-		// void blink(int times, long duration) // blink at a particular rate
-		// void blink(int times, long initialDuration, finalDuration) // ramped blink (eg: start fast to slow)
+		// turn on for some amount of time
+		void setOn(); // switch on w/ no target off time
+		void setOn(long onTime ); // how long to maintain this state ?
+		void setOff(); // turn off instantly
+
+		// flip the state ?
+		// void toggle();
+
+		// flash 4x quickly, default behavior
+		// void blink();
+		//
+		// // blink at default rate
+		// void blink(int times);
+		//
+		// // blink at a particular rate
+		// void blink(int times, long duration);
+		//
+		// // ramped blink (eg: start fast to slow)
+		// void blink(int times, long initialDuration, long finalDuration);
 
 		// maybe we need setOn / setOff w/ delay ?  is that more clear ?
+		// void setOn
 
 		/**
 		 * Convenience storage to keep implementation simpler - which pin
@@ -59,7 +74,9 @@ class DSecLED {
 
 	private:
 
-		// i think i may be overcomplicating this but basically we need a R/G/V change amount per MS and when things happened
+		// how many times to blink
+		// blink start blink end rate MS too
+		// int8_t _blinks;
 
 		uint8_t _pin;
 

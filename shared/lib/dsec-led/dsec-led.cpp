@@ -54,6 +54,12 @@ void DSecLED::setState( boolean state, long lifetimeMS ) {
 	_targetMillis = millis() + lifetimeMS;
 }
 
+void DSecLED::setOn() {
+	_targetState = true;
+	_state = true;
+	_targetMillis = millis();
+}
+
 /**
  * Change _state to state for {lifetimeMS} MS, before switching back to last
  */
@@ -68,6 +74,12 @@ void DSecLED::setOn( long lifetimeMS ) {
 
 	// set future arrival time of previous state
 	_targetMillis = millis() + lifetimeMS;
+}
+
+void DSecLED::setOff() {
+	_targetState = false;
+	_state = false;
+	_targetMillis = millis();
 }
 
 boolean DSecLED::getState() {
