@@ -24,7 +24,7 @@ DSecLED::DSecLED() {
 	_state = false;
 	_lastState = false;
 
-	_lastMS = millis();
+	_lastMillis = millis();
 	_targetMillis = millis();
 
 }
@@ -90,7 +90,7 @@ void DSecLED::update() {
 	// store last state
 	_lastState = _state;
 
-	// long elapsedMS = millis() - _lastMS;
+	// long elapsedMS = millis() - _lastMillis;
 
 	// check for state change needed
 	if (millis() >= _targetMillis && _state != _targetState) {
@@ -99,7 +99,7 @@ void DSecLED::update() {
 	}
 
 	// store last time we did ms
-	_lastMS = millis();
+	_lastMillis = millis();
 
 }
 

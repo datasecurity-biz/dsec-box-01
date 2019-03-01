@@ -28,6 +28,11 @@ class DSecLED {
 		void setState(boolean state, long onTime ); // how long to maintain this state ?
 		void setOn(long onTime ); // how long to maintain this state ?
 
+		// void blink() // flash 4x quickly, default behavior
+		// void blink(int times) // blink at default rate
+		// void blink(int times, long duration) // blink at a particular rate
+		// void blink(int times, long initialDuration, finalDuration) // ramped blink (eg: start fast to slow)
+
 		// maybe we need setOn / setOff w/ delay ?  is that more clear ?
 
 		/**
@@ -68,7 +73,7 @@ class DSecLED {
 		boolean _targetState;
 
 		// when was the last time update was called?
-		unsigned long _lastMS;
+		unsigned long _lastMillis;
 
 		// when will _state become _targetState ?
 		unsigned long _targetMillis;
