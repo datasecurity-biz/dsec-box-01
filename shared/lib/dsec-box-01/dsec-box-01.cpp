@@ -32,7 +32,7 @@ MUX74HC4067 mux(7, 6, 5, 4, 3);
 // Set SIG Pin from MUX74HC4067
 #define SIG 2
 
-void init() {
+void setup() {
 
 	// box01 thingie needs some boiler plate to set up which pins do what
 	// thingie.init( blah blha )
@@ -154,6 +154,11 @@ void loop() {
 
 }
 
+void sendMidi() {
+	// sendMidi
+	// ???
+}
+
 void readMidi() {
 
 
@@ -173,15 +178,8 @@ void readInterfaceState() {
 		data = mux.read( mainToggles[i].getUpPin() );
 		mainToggles[i].setUpState( data == HIGH );
 
-		uint8_t upPin = mainToggles[i].getUpPin();
-		uint8_t downPin = mainToggles[i].getDownPin();
-
-		// check the up state
-		data = mux.read( upPin );
-		mainToggles[i].setUpState( data == HIGH );
-
 		// check the down state
-		data = mux.read( downPin );
+		data = mux.read( mainToggles[i].getDownPin() );
 		mainToggles[i].setDownState( data == HIGH );
 
 		switch( mainToggles[i].getState() ) {
@@ -272,6 +270,8 @@ void updateDisplay() {
 
 	boolean needRepaint = false;
 
+	// check 8x indicator LEDs
+
 	for(uint8_t i = 0; i < 8; i++) {
 		seqLEDs[i].update();
 		if (seqLEDs[i].isChanged()) {
@@ -279,6 +279,8 @@ void updateDisplay() {
 			strip.setPixelColor( seqLEDs[i].getNumber(), seqLEDs[i].getR(), seqLEDs[i].getG(), seqLEDs[i].getB() );
 		}
 	}
+
+	// check top two LEDs
 
 	for(uint8_t i = 0; i < 2; i++) {
 		topLEDs[i].update();
@@ -288,8 +290,6 @@ void updateDisplay() {
 		}
 	}
 
-	// check top two LEDs
-
 	if (needRepaint) {
 		strip.show();
 	}
@@ -298,7 +298,6 @@ void updateDisplay() {
 
 	for(uint8_t i = 0; i < 4; i++) {
 		buttonLEDs[i].update();
-		//
 		// if (buttonLEDs[i].isChanged() ) {
 			// digitalWrite( buttonLEDs[i].getPin(), buttonLEDs[i].getState() ? HIGH : LOW );
 		// }

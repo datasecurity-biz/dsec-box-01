@@ -1,362 +1,78 @@
 /**
- * Name: Data Security DUALTOGGLE control
+ * Name: Data Security BOX01 library
  * Author: Avery Brooks
  * Version: 0.0
- * Description: A library for interfacing with a two way momentary toggle switch
+ * Description: A library for interfacing with a spooky box of wires
  * License: Copyright (c) 2019 Avery Brooks
  *          This library is licensed under the MIT license
  *          http://www.opensource.org/licenses/mit-license.php
  *
- * Filename: dsec-dualtoggle.h
- * File description: Definitions and methods for the dsec-dualtoggle library
+ * Filename: dsec-box01.h
+ * File description: Definitions and methods for the dsec-box01 library
  */
 #ifndef DSEC_BOX01_h
 #define DSEC_BOX01_h
+
+#include "dsec-singletoggle.h"
+#include "dsec-dualtoggle.h"
+#include "dsec-knob.h"
+#include "dsec-rgbled.h"
+#include "dsec-led.h"
 
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include <MIDI.h>
 #include "MUX74HC4067.h"
 
-// some day do dsec-momentary dsec-toggle
-
-#define ANALOG 0
-#define DIGITAL 1
-
-#define DISABLED 0
-#define ENABLED 1
-
 // Class for interfacing the 74HC4067 multiplexers/demultiplexers
-class DSecDualToggle
+class DSecBox01
 {
 	public:
-		DSecDualToggle(uint8_t pinUp, uint8_t pinDown);
-			void loop();
+
+		/**
+		 * Indicator RGB LEDs
+		 */
+		DSecRGBLED seqLEDs[8];
+		DSecRGBLED topLEDs[2];
+
+		/**
+		 * On/Off button LEDs
+		 */
+		DSecLED    buttonLEDs[4];
+
+		// One toggle up top right
+		DSecDualToggle topToggle;
+
+		// 8 toggles left to right
+		DSecDualToggle mainToggles[8];// = DSecDualToggle();
+
+		// 4 buttons along the bottom
+		DSecSingleToggle buttons[4];
+
+		// 4 knobs along the bottom by the buttons
+		DSecKnob knobs[4];
+
+		// MUX!
+		MUX74HC4067 mux(7, 6, 5, 4, 3);
+		// Set SIG Pin from MUX74HC4067
+		//
+
+		/**
+		 * Call this to initialize the whole deal
+		 * @todo maybe have a long ass string of numbers representing every pin ?????????? or better idea how about a couple of grouped arrays of pins
+		 */
+		void setup();
+		void loop();
 
 	private:
 		/**
-		 * Toggle states
-		 *  1: - currently held up
-		 *  0: - off
-		 * -1: - currently held down
+		 * Anything interally used which should never be called externally ?
 		 */
-		int8_t toggleState;
-		int8_t pinUp;
-		int8_t pinDown;
+		void readInterfaceState();
+		void readMidi();
+		void updateDisplay();
+		void sendMidi();
+
 };
 
 #endif  // MUX74HC4067
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Kelly's MIDI / hardware testing build:
-
-
-#include <MIDI.h>
-#include <Adafruit_NeoPixel.h>
-#include "MUX74HC4067.h"
-
-// Setup NeoPixel stuff
-#define PIN 8
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, PIN, NEO_GRB + NEO_KHZ800);
-
-long lastSentMS = 0;
-
-int numButtons = 4;
-int numPots = 4;
-int numSwitches = 9;
-
-// Arrays to define Arduino Pins for I/O
-int button[] = {22, 23, 24, 25};
-int LED[] = {34, 35, 36, 37};
-int POT[] = {A3, A2, A1, A0};
-
-// Arrays to save states of given I/O devices
-int buttonStates[] = {0, 0, 0, 0};
-int LEDStates[] = {LOW, LOW, LOW, LOW};
-int POTStates[] = {0, 0, 0, 0};
-int SwitchStates[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-// Ints for saving current states of pots, buttons, within check phases
-int buttonCurrent;
-int potCurrent;
-
-// Define MUX74HC4067 device pins as such: (EN, S0, S1, S2, S3)
-MUX74HC4067 mux(7, 6, 5, 4, 3);
-// Set SIG Pin from MUX74HC4067
-#define SIG 2
-
-// Create a MIDI instance
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial3, MIDI);
-
-// set to true to have midi events represented with the neopixels
-bool midiDebug = true;
-
-void setup() {
-	// Initializes serial port
-	Serial.begin(9600);
-	while ( !Serial ) ;
-
-	// Initialize all NeoPixels to 'off'
-	strip.begin();
-	strip.show();
-
-	// Sets Input Pins for Buttons, Button LEDS, and Pots ¡¡SWITCHES DONE VIA MUX BELOW!!
-	initDevices();
-
-	// Flash the button LEDs, end in off
-	flashButtonLEDs();
-
-	// Configures how the SIG pin will be interfaced
-	mux.signalPin(SIG, INPUT, DIGITAL);
-
-	// Launch MIDI and listen to all channels
-	MIDI.begin(MIDI_CHANNEL_OMNI);
-	// Set MIDI ON/OFF function names
-	if (midiDebug) {
-		MIDI.setHandleNoteOn(MidiNoteOnDEBUG);
-		MIDI.setHandleNoteOff(MidiNoteOffDEBUG);
-	}
-	else {
-		MIDI.setHandleNoteOn(MidiNoteOn);
-		MIDI.setHandleNoteOff(MidiNoteOff);
-	}
-
-	// Flash the NeoPixels to finalize setup, end in off
-	flashRGB();
-}
-
-void loop() {
-
-	checkButtonStates();
-	checkPotStates();
-	//checkSwitchStates();
-//Serial.println();
-
-//  midiOnThings();
-//  MIDI.read();
-//  midiOffThings();
-
-//  midiNoteDebug();
-//  MIDI.read();
-//  delay(5);
-
-//  Serial.println( );
-	// Serial.println(POTStates[0]);
-
-	if (millis() - lastSentMS > map(POTStates[3],0,127,100,10)) {
-
-		MIDI.sendNoteOn(map(POTStates[0], 0, 127,36,48), 100, 8); // POTStates[2]);
-
-//    Serial.print(POTStates[0]);
-//    Serial.print(",");
-//    Serial.print(POTStates[1]);
-//    Serial.print(",");
-//    Serial.print(POTStates[2]);
-//    Serial.println();
-
-		lastSentMS = millis();
-
-	}
-
-		MIDI.read();
-
-
-//  delay(50);
-
-}
-
-// Fill the dots one after the other with a color
-void colorWipe(uint32_t c, uint8_t wait) {
-	for (uint16_t i = 0; i < strip.numPixels(); i++) {
-		strip.setPixelColor(i, c);
-		strip.show();
-		delay(wait);
-	}
-}
-
-//MIDI STUFF
-void midiOnThings() {
-	MIDI.sendNoteOn(42, 127, 1);
-	Serial.println("sent Midi Note ON");
-}
-
-void midiOffThings() {
-	MIDI.sendNoteOff(42, 0, 1);
-	Serial.println("sent Midi Note OFF");
-}
-
-
-// What to do if a midi note ON message comes
-void MidiNoteOn(byte chan, byte pitch, byte velocity) {
-
-}
-// What to do if a midi note OFF message comes
-void MidiNoteOff(byte chan, byte pitch, byte velocity) {
-
-}
-
-
-/// MIDI DEBUGGING
-void midiNoteDebug() {
-
-	for (int i = 0; i < numButtons; i++) {
-		int OnOff = buttonStates[i];
-		int pitch = POTStates[i];
-//    Serial.print(OnOff);
-//    Serial.print(" x ");
-//    Serial.print(pitch);
-//    Serial.print(" x ");
-//    Serial.println(i);
-
-		if (OnOff == 1) {
-			MIDI.sendNoteOn(pitch, 127, i+1);
-		}
-		else if (OnOff == 0) {
-			MIDI.sendNoteOff(pitch, 0, i+1);
-		}
-	}
-
-}
-
-// What to do if a midi note ON message comes in DEBUG mode
-void MidiNoteOnDEBUG(byte chan, byte pitch, byte velocity){
-	Serial.print("GOT MIDI ON ");
-	Serial.print("chan ");
-	Serial.print(chan);
-	Serial.print("pitch ");
-	Serial.print(pitch);
-	Serial.print("velocity ");
-	Serial.print(velocity);
-	Serial.println();
-
-	for(int i = 0; i < 11; i++) {
-		strip.setPixelColor(map(pitch,36,51,0,10), pitch, velocity*2, pitch*2);
-	}
-	strip.show();
-
-
-
-}
-
-// What to do if a midi note OFF message comes in DEBUG mode
-void MidiNoteOffDEBUG(byte chan, byte pitch, byte velocity){
-	Serial.print("GOT MIDI OFF");
-	Serial.print("chan ");
-	Serial.print(chan);
-	Serial.print("pitch ");
-	Serial.print(pitch);
-	Serial.print("velocity ");
-	Serial.print(velocity);
-	Serial.println();
-
-	for(int i = 0; i < 11; i++) {
-		strip.setPixelColor(map(pitch,36,51,0,10), 0, 0, 0);
-	}
-	strip.show();
-}
-
-void checkButtonStates() {
-	//Serial.print(" Button Sates:");
-	for (int i = 0; i < numButtons; i++) {
-		buttonCurrent = digitalRead(button[i]);
-		if (buttonCurrent == HIGH) {
-			digitalWrite(LED[i], LOW);
-			//MIDI.sendNoteOn(60 + i, 127, 1);
-		}
-		else {
-			digitalWrite(LED[i], HIGH);
-			//MIDI.sendNoteOff(60 + i, 0, 1);
-		}
-		buttonStates[i] = buttonCurrent;
-		//Serial.print(buttonCurrent);
-		//Serial.print("|");
-
-	}
-}
-
-void checkPotStates() {
-	//Serial.print(" POT Sates: ");
-	for (int i = 0; i < numPots; i++) {
-		int potRead = analogRead(POT[i]);
-//    Serial.print(i);
-//    Serial.print("@");
-//    Serial.print(potRead);
-		potCurrent = map(potRead,0,1023,0,127);
-//    Serial.print("->");
-//    Serial.println(potCurrent);
-		POTStates[i] = potCurrent;
-		//Serial.print(potCurrent);
-		//Serial.print("|");
-	}
-}
-
-void checkSwitchStates() {
-
-	Serial.print(" Switch Sates: ");
-	int data;
-	for (byte i = 0; i < 16; ++i)
-	{
-		// Reads from channel i and returns HIGH or LOW
-		//int i = 12;
-		data = mux.read(i);
-		if ( data == HIGH ) {
-			SwitchStates[i] = 1;
-			//Serial.print("1");
-		}
-		else if ( data == LOW ) {
-			SwitchStates[i] = 0;
-			//Serial.print("0");
-		}
-		Serial.print(SwitchStates[i]);
-		Serial.print("|");
-		delay(20);
-	}
-
-}
-
-void initDevices() {
-
-	for (int i = 0; i < numButtons; i++) {
-		pinMode(button[i], INPUT);
-		pinMode(LED[i], OUTPUT);
-	}
-	for (int i = 0; i < numPots; i++) {
-		pinMode(POT[i], INPUT);
-	}
-
-}
-
-void flashButtonLEDs() {
-
-	for (int i = 0; i < 4; i++) {
-		digitalWrite(LED[i], HIGH);
-		delay(100);
-		digitalWrite(LED[i], LOW);
-		delay(100);
-	}
-
-}
-
-void flashRGB() {
-
-	colorWipe(strip.Color(255, 0, 0), 10); // Red
-	colorWipe(strip.Color(0, 255, 0), 10); // Green
-	colorWipe(strip.Color(0, 0, 255), 10); // Blue
-	colorWipe(strip.Color(0, 0, 0), 10); // off
-
-}
