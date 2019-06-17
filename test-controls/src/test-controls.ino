@@ -141,6 +141,7 @@ void loop() {
 
 	// do midi things
 	// midi midi midi
+	readMidi();
 
 	// LEDs
 	updateDisplay();
@@ -148,8 +149,18 @@ void loop() {
 	// read knobs and buttons
 	readInterfaceState();
 
+	// what we do for midi
+	sendMidi();
+
 }
 
+void readMidi() {
+
+
+	// ???
+
+
+}
 
 void readInterfaceState() {
 
