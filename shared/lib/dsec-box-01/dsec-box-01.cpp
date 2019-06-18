@@ -1,44 +1,36 @@
 
+#include "dsec-box-01.h"
+
 #include "dsec-singletoggle.h"
 #include "dsec-dualtoggle.h"
 #include "dsec-knob.h"
 #include "dsec-rgbled.h"
 #include "dsec-led.h"
 
+#include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include <MIDI.h>
 #include "MUX74HC4067.h"
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(10, 8, NEO_GRB + NEO_KHZ800);
-
-DSecRGBLED seqLEDs[8];
-DSecRGBLED topLEDs[2];
-DSecLED buttonLEDs[4];
-
-// One toggle up top right
-DSecDualToggle topToggle;
-
-// 8 toggles left to right
-DSecDualToggle mainToggles[8];// = DSecDualToggle();
-
-// 4 buttons along the bottom
-DSecSingleToggle buttons[4];
-
-// 4 knobs along the bottom by the buttons
-DSecKnob knobs[4];
-
-// MUX!
-MUX74HC4067 mux(7, 6, 5, 4, 3);
 // Set SIG Pin from MUX74HC4067
 #define SIG 2
 
-void setup() {
+MUX74HC4067 mux(7, 6, 5, 4, 3);
+Adafruit_NeoPixel strip(10, 8, NEO_GRB + NEO_KHZ800);
+
+DSecBox01::DSecBox01() {
+
+}
+
+void DSecBox01::setup() {
 
 	// box01 thingie needs some boiler plate to set up which pins do what
 	// thingie.init( blah blha )
 
 	Serial.begin(9600);
 	while ( !Serial ) ;
+
+	mux.signalPin(SIG, INPUT, DIGITAL);
 
 	// Initialize all NeoPixels to 'off'
 	strip.begin();
@@ -56,8 +48,6 @@ void setup() {
 		strip.show();
 		delay(50);
 	}
-
-	mux.signalPin(SIG, INPUT, DIGITAL);
 
 	// MIDDLE 8 TOGGLES:
 	// UP, DOWN pins switches from 0-7 --- @ 5,4 | 3,2 | 1,0 | 11,10 | 9,8 | 7,6 | 13,12 | 15,14
@@ -134,40 +124,11 @@ void setup() {
 
 }
 
-void loop() {
-	// thingie.loop();
+void DSecBox01::_sendMidi() {}
 
-	// something like this :
+void DSecBox01::_readMidi() {}
 
-	// do midi things
-	// midi midi midi
-	readMidi();
-
-	// LEDs
-	updateDisplay();
-
-	// read knobs and buttons
-	readInterfaceState();
-
-	// what we do for midi
-	sendMidi();
-
-}
-
-void sendMidi() {
-	// sendMidi
-	// ???
-}
-
-void readMidi() {
-
-
-	// ???
-
-
-}
-
-void readInterfaceState() {
+void DSecBox01::_readInterfaceState() {
 
 	int8_t data;
 	int16_t data16;
@@ -266,7 +227,7 @@ void readInterfaceState() {
 
 }
 
-void updateDisplay() {
+void DSecBox01::_updateDisplay() {
 
 	boolean needRepaint = false;
 
@@ -303,5 +264,25 @@ void updateDisplay() {
 		// }
 		digitalWrite( buttonLEDs[i].getPin(), buttonLEDs[i].getState() ? LOW : HIGH );
 	}
+
+}
+
+void DSecBox01::loop() {
+	// thingie.loop();
+
+	// something like this :
+
+	// do midi things
+	// midi midi midi
+	_readMidi();
+
+	// LEDs
+	_updateDisplay();
+
+	// read knobs and buttons
+	_readInterfaceState();
+
+	// what we do for midi
+	_sendMidi();
 
 }

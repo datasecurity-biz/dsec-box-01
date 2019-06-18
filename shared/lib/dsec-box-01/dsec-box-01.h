@@ -24,10 +24,14 @@
 #include <MIDI.h>
 #include "MUX74HC4067.h"
 
+// MUX74HC4067 mux;
+
 // Class for interfacing the 74HC4067 multiplexers/demultiplexers
 class DSecBox01
 {
 	public:
+
+		DSecBox01();
 
 		/**
 		 * Indicator RGB LEDs
@@ -38,7 +42,7 @@ class DSecBox01
 		/**
 		 * On/Off button LEDs
 		 */
-		DSecLED    buttonLEDs[4];
+		DSecLED buttonLEDs[4];
 
 		// One toggle up top right
 		DSecDualToggle topToggle;
@@ -52,27 +56,28 @@ class DSecBox01
 		// 4 knobs along the bottom by the buttons
 		DSecKnob knobs[4];
 
-		// MUX!
-		MUX74HC4067 mux(7, 6, 5, 4, 3);
-		// Set SIG Pin from MUX74HC4067
-		//
+		// note: multiplexer controller and LED strip are thrown in
+		// the .cpp as global -- 'mux' and 'strip'
 
 		/**
 		 * Call this to initialize the whole deal
-		 * @todo maybe have a long ass string of numbers representing every pin ?????????? or better idea how about a couple of grouped arrays of pins
+		 * @todo maybe have a long ass string of numbers representing every pin ??????????
+		 * or better idea how about a couple of grouped arrays of pins
+		 * or maybe even better -- a bunch of #define PIN_X 1 << type things
 		 */
 		void setup();
 		void loop();
 
 	private:
+
 		/**
 		 * Anything interally used which should never be called externally ?
 		 */
-		void readInterfaceState();
-		void readMidi();
-		void updateDisplay();
-		void sendMidi();
+		void _readInterfaceState();
+		void _readMidi();
+		void _updateDisplay();
+		void _sendMidi();
 
 };
 
-#endif  // MUX74HC4067
+#endif
