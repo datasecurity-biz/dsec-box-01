@@ -68,7 +68,14 @@ class DSecBox01
 		void setup();
 		void loop();
 
+		/**
+		 * Make Serial less noisy
+		 */
+		void setDumpInterfaceState(bool state);
+
 	private:
+
+		bool _dumpInterfaceState;
 
 		/**
 		 * Anything interally used which should never be called externally ?

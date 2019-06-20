@@ -145,7 +145,8 @@ void DSecBox01::_readInterfaceState() {
 
 		switch( mainToggles[i].getState() ) {
 			case  1 :
-				Serial.print("^");
+				if (_dumpInterfaceState)
+					Serial.print("^");
 
 				seqLEDs[i].setRGB(
 					knobs[0].getPosition() * 255,
@@ -154,16 +155,21 @@ void DSecBox01::_readInterfaceState() {
 					knobs[3].getPosition() * 10000);
 
 			break;
-			case  0 : Serial.print("-"); break;
+			case  0 :
+				if (_dumpInterfaceState)
+					Serial.print("-");
+				break;
 			case -1 :
-				Serial.print("v");
+				if (_dumpInterfaceState)
+					Serial.print("v");
 				seqLEDs[i].setRGB(0,0,0, knobs[3].getPosition() * 10000);
 			break;
 		}
 
 	}
 
-	Serial.print(" ");
+	if (_dumpInterfaceState)
+		Serial.print(" ");
 
 	// check the up state
 	data = digitalRead( topToggle.getUpPin() );
@@ -175,21 +181,27 @@ void DSecBox01::_readInterfaceState() {
 
 	switch( topToggle.getState() ) {
 		case  1 :
-			Serial.print("^");
+			if (_dumpInterfaceState)
+				Serial.print("^");
 			topLEDs[0].setRGB(
 				knobs[0].getPosition() * 255,
 				knobs[1].getPosition() * 255,
 				knobs[2].getPosition() * 255,
 				knobs[3].getPosition() * 10000);
 		break;
-		case  0 : Serial.print("-"); break;
+		case  0 :
+			if (_dumpInterfaceState)
+				Serial.print("-");
+		break;
 		case -1 :
-			Serial.print("v");
+			if (_dumpInterfaceState)
+				Serial.print("v");
 			topLEDs[0].setRGB(0,0,0, knobs[3].getPosition() * 10000);
 		break;
 	}
 
-	Serial.print(" ");
+	if (_dumpInterfaceState)
+		Serial.print(" ");
 
 	for (uint8_t i = 0; i < 4; ++i) {
 		int8_t data = digitalRead(buttons[i].getPin());
@@ -197,33 +209,38 @@ void DSecBox01::_readInterfaceState() {
 
 		switch( buttons[i].getState() ) {
 			case  1 :
-				Serial.print("X");
+				if (_dumpInterfaceState)
+					Serial.print("X");
 				// buttonLEDs[i].setState(false);
 				// buttonLEDs[i].setState(true, 1000);
 				buttonLEDs[i].setOn(1000);
 				break;
 			case  0 :
-				Serial.print("O");
+				if (_dumpInterfaceState)
+					Serial.print("O");
 				// buttonLEDs[i].setState(true);
 				break;
 		}
 	}
 
-	Serial.print(" ");
+	if (_dumpInterfaceState) {
+		Serial.print(" ");
+	}
 
 	for(uint8_t i = 0; i < 4; i++) {
 		data16 = analogRead( knobs[i].getPin() );
 		knobs[i].setValue(data16);
 
-		// Serial.print( knobs[i].getValue() );
-		Serial.print( knobs[i].getPosition() );
-		Serial.print(" ");
+		if (_dumpInterfaceState) {
+			Serial.print( knobs[i].getPosition() );
+			Serial.print(" ");
+		}
 
 	}
 
-	Serial.println("");
-
-	// delay(20);
+	if (_dumpInterfaceState) {
+		Serial.println("");
+	}
 
 }
 
@@ -265,6 +282,10 @@ void DSecBox01::_updateDisplay() {
 		digitalWrite( buttonLEDs[i].getPin(), buttonLEDs[i].getState() ? LOW : HIGH );
 	}
 
+}
+
+void DSecBox01::setDumpInterfaceState(bool state) {
+	_dumpInterfaceState = state;
 }
 
 void DSecBox01::loop() {

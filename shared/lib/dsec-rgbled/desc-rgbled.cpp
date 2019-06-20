@@ -56,6 +56,7 @@ uint8_t DSecRGBLED::getB() {
 
 /**
  * Jump instantly to a new R/G/B
+ * this doesn't work somehow -- doesn't appear 'changed' -- needs update
  */
 void DSecRGBLED::setRGB( uint8_t R, uint8_t G, uint8_t B ) {
 	_R = this->to16bit(R);
