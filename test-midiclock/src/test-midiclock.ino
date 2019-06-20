@@ -2,6 +2,7 @@
 #include <MIDI.h>
 #include "dsec-box-01.h"
 
+#include "dsec-midinote.h"
 
 // @todomove this all to box / ifndef etc for defaults
 #define MIDI_CLOCK_PPQ 24
@@ -12,8 +13,13 @@ unsigned long lastClockMS = 0;
 uint8_t BPM = 120;
 uint8_t currentTick = 0;
 uint8_t currentStep = 0;
+uint8_t ticksPerStep = MIDI_CLOCK_PPQ / 4; // four steps per quarter
+
+
+DSecMidiNote bork;
 
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial3, MIDI);
+// midi::MidiInterface&
 
 /**
  * Initial setup
@@ -47,8 +53,12 @@ void setup() {
 	MIDI.setHandleStop(handleStop);
 	MIDI.setHandleContinue(handleContinue);
 
-
 	Serial.println("Arduino ready.");
+
+
+
+	bork = DSecMidiNote( MIDI, 10, 127, 1, 1000 );
+	bork.play();
 
 }
 
@@ -59,6 +69,12 @@ bool lastButtonState[4] = {false,false,false,false};
  *
  */
 void loop() {
+
+
+
+	bork.update();
+
+
 
 	// this can be moved into box.loop i believe
 	MIDI.read();
@@ -98,23 +114,24 @@ void handleClock() {
 	box.seqLEDs[currentStep].setRGB(255,0,0,1);
 
 	// if (currentTick % )
+	currentTick = (currentTick + 1) % MIDI_CLOCK_PPQ;
 
-	currentTick = (currentTick + 1) % 24;
-
-
-	if (currentTick % 12 == 0) {
+	if (currentTick % ticksPerStep == 0) {
 		currentStep = (currentStep + 1) % 8;
 	}
 
-	if (currentStep == 0 && currentTick == 0) {
-		MIDI.sendNoteOn(42, 127, 1);
-	} else if (currentStep == 1) {
-		MIDI.sendNoteOff(42, 127, 1);
-	}
+	// @todo -- figure out an onChange onStep onStep ( stepNum ) type thing
+	// // if (currentStep == 0 && currentTick == 0) {
+	// if (currentStep % 2 == 0 && currentTick == 0) {
+	// 	MIDI.sendNoteOn(42, 127, 1);
+	// // } else if (currentStep == 1) {
+	// } else if (currentStep % 2 == 1 && currentTick == MIDI_CLOCK_PPQ / 2) {
+	// 	MIDI.sendNoteOff(42, 127, 1);
+	// }
 
-	Serial.print(currentStep);
-	Serial.print(" clock ");
-	Serial.println( currentTick );
+	// Serial.print(currentStep);
+	// Serial.print(" clock ");
+	// Serial.println( currentTick );
 
 	/*
 	currentTick++;
@@ -143,10 +160,11 @@ void handleNoteOff(byte channel, byte pitch, byte velocity) {
 void handleStart() {
 	currentTick = 0;
 	currentStep = 0;
+	box.topLEDs[0].setRGB(0,255,0);
 }
 
 void handleStop() {
-
+	box.topLEDs[0].setRGB(0,0,0);
 }
 
 void handleContinue() {

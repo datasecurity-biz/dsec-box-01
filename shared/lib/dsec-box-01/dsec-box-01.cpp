@@ -252,7 +252,7 @@ void DSecBox01::_updateDisplay() {
 
 	for(uint8_t i = 0; i < 8; i++) {
 		seqLEDs[i].update();
-		if (seqLEDs[i].isChanged()) {
+		if (seqLEDs[i].isChanged() || seqLEDs[i].receiveForceChange()) {
 			needRepaint = true;
 			strip.setPixelColor( seqLEDs[i].getNumber(), seqLEDs[i].getR(), seqLEDs[i].getG(), seqLEDs[i].getB() );
 		}
@@ -262,7 +262,7 @@ void DSecBox01::_updateDisplay() {
 
 	for(uint8_t i = 0; i < 2; i++) {
 		topLEDs[i].update();
-		if (topLEDs[i].isChanged()) {
+		if (topLEDs[i].isChanged() || topLEDs[i].receiveForceChange()) {
 			needRepaint = true;
 			strip.setPixelColor( topLEDs[i].getNumber(), topLEDs[i].getR(), topLEDs[i].getG(), topLEDs[i].getB() );
 		}

@@ -59,6 +59,12 @@ class DSecRGBLED {
 		boolean isChanged();
 
 		/**
+		 * if we are not interpolating a fade on an LED - the host must also check
+		 * this method to see if an LED write is required on that cycle (eg: hard on / off)
+		 */
+		boolean receiveForceChange();
+
+		/**
 		 * Called once per loop - update 'current' state / changedness
 		 */
 		void update();
@@ -87,6 +93,8 @@ class DSecRGBLED {
 		int16_t _changeRMS;
 		int16_t _changeGMS;
 		int16_t _changeBMS;
+
+		bool _forceChange;
 
 		unsigned long _lastMS;
 		unsigned long _targetMillis;

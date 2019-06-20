@@ -37,6 +37,8 @@ DSecRGBLED::DSecRGBLED() {
 	_changeGMS = 0;
 	_changeBMS = 0;
 
+	_forceChange = false;
+
 	_lastMS = millis();
 	_targetMillis = millis();
 
@@ -62,7 +64,16 @@ void DSecRGBLED::setRGB( uint8_t R, uint8_t G, uint8_t B ) {
 	_R = this->to16bit(R);
 	_G = this->to16bit(G);
 	_B = this->to16bit(B);
+
+	// no change after this force
+	_changeRMS = 0;
+	_changeGMS = 0;
+	_changeBMS = 0;
+
 	_targetMillis = millis();
+
+	// next update cycle in box must receive this via ::receiveForceChange()
+	_forceChange = true;
 }
 
 /**
@@ -135,6 +146,14 @@ int16_t DSecRGBLED::to16bit(uint8_t rangedValue) {
 
 boolean DSecRGBLED::isChanged() {
 	return _R != _lastR || _G != _lastG || _B != _lastB;
+}
+
+boolean DSecRGBLED::receiveForceChange() {
+	if (_forceChange) {
+		_forceChange = false;
+		return true;
+	}
+	return false;
 }
 
 #endif // DSecRGBLED_cpp
